@@ -1,7 +1,9 @@
-const connectDB = require('../src/config/db');
 const app = require('../src/app');
+const connectDB = require('../src/config/db');
 
-module.exports = async (req, res) => {
-  await connectDB();
-  return app(req, res);
-};
+// Initialize database connection
+connectDB().catch(err => {
+  console.error('Failed to connect to database:', err);
+});
+
+module.exports = app;
