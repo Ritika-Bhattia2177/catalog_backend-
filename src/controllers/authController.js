@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const connectDB = require('../config/db');
 const asyncHandler = require('../utils/asyncHandler');
 
 const generateToken = (id) => {
@@ -9,6 +10,7 @@ const generateToken = (id) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
+  await connectDB();
   const { name, email, password } = req.body;
 
   const existingUser = await User.findOne({ email });
@@ -34,6 +36,7 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
+  await connectDB();
   const { email, password } = req.body;
 
   const user = await User.findOne({ email }).select('+password');
@@ -67,6 +70,7 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
+  await connectDB();
   res.status(200).json({
     success: true,
     user: {

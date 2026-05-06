@@ -1,22 +1,34 @@
 const mongoose = require('mongoose');
 
+const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+
+if (!global._mongooseCache) {
+  global._mongooseCache = { conn: null, promise: null };
+}
+
 const connectDB = async () => {
-  const mongoUri = process.env.MONGODB_URI;
   if (!mongoUri) {
-    console.error('MONGODB_URI is not set in environment');
-    process.exit(1);
+    console.error('MONGO_URI / MONGODB_URI is not set in environment');
+    throw new Error('MONGO_URI not set');
   }
 
-  const dbName = process.env.MONGO_DB_NAME || 'catalog';
-
   try {
-    const conn = await mongoose.connect(mongoUri, {
-      dbName,
-    });
-    console.log(`MongoDB connected: ${conn.connection.host}/${dbName}`);
+    if (global._mongooseCache.conn) {
+      return global._mongooseCache.conn;
+    }
+
+    if (!global._mongooseCache.promise) {
+      global._mongooseCache.promise = mongoose.connect(mongoUri, {
+        dbName: process.env.MONGO_DB_NAME || 'catalog',
+      });
+    }
+
+    global._mongooseCache.conn = await global._mongooseCache.promise;
+    console.log('MongoDB Connected ✅');
+    return global._mongooseCache.conn;
   } catch (error) {
-    console.error(`MongoDB connection error: ${error.message}`);
-    process.exit(1);
+    console.log('DB Error ❌', error);
+    throw error;
   }
 };
 

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Product = require('../models/Product');
+const connectDB = require('../config/db');
 const asyncHandler = require('../utils/asyncHandler');
 
 const buildProductQuery = (query) => {
@@ -27,6 +28,7 @@ const buildProductQuery = (query) => {
 };
 
 const getProducts = asyncHandler(async (req, res) => {
+  await connectDB();
   const filter = buildProductQuery(req.query);
   const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
   const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 100);
@@ -53,6 +55,7 @@ const getProducts = asyncHandler(async (req, res) => {
 });
 
 const getProductById = asyncHandler(async (req, res) => {
+  await connectDB();
   const { id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -69,6 +72,7 @@ const getProductById = asyncHandler(async (req, res) => {
 });
 
 const createProduct = asyncHandler(async (req, res) => {
+  await connectDB();
   const product = await Product.create({
     ...req.body,
     createdBy: req.user._id,
@@ -82,6 +86,7 @@ const createProduct = asyncHandler(async (req, res) => {
 });
 
 const updateProduct = asyncHandler(async (req, res) => {
+  await connectDB();
   const { id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -107,6 +112,7 @@ const updateProduct = asyncHandler(async (req, res) => {
 });
 
 const deleteProduct = asyncHandler(async (req, res) => {
+  await connectDB();
   const { id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
